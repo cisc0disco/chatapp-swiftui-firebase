@@ -38,11 +38,11 @@ struct SignUpButton: ButtonStyle {
 struct LoginView: View {
     @State var email: String = ""
     @State var password = ""
-    @State var loggedIn = false
     @State private var showError = false
     @State var showSignup = false
     @State var errorName: String = ""
     @State private var showToast = false
+    @State private var loggedIn = false
     
     @EnvironmentObject var session: SessionManager
     
@@ -73,13 +73,17 @@ struct LoginView: View {
                         }.padding(.horizontal, 50)
                             Button(action: {
                                 Task {
-                                    do {
-                                        errorName = await session.login(email: email, password: password)
-                                        if errorName != ""
-                                        {
-                                            showToast.toggle()
-                                        }
+                                    errorName = await session.login(email: email, password: password)
+                                    
+                                    if (errorName == "ok")
+                                    {
+                                        loggedIn = true
+                                    } else
+                                    {
+                                        loggedIn = false
                                     }
+                                    
+                                    showToast.toggle()
                                 }
                                 
                             }) {
@@ -93,10 +97,21 @@ struct LoginView: View {
                         .popover(isPresented: $showSignup, arrowEdge: .top) {
                             SignupView(showSignup: $showSignup).environmentObject(session)
                                 .interactiveDismissDisabled()
-                        }.toast(isPresenting: $showToast){
-                            
-                            AlertToast(type: .error(.red), title: errorName)
-                        }
+                        }.toast(isPresenting: $showToast, duration: 1, tapToDismiss: false, alert: {
+                            if (loggedIn)
+                            {
+                                return AlertToast(type: .complete(.green), title: "Logged in")
+                            } else
+                            {
+                                return AlertToast(type: .error(.red), title: errorName)
+                            }
+                        }, completion: {
+                            if (loggedIn)
+                            {
+                                session.loggedIn = true
+                            }
+                        })
+                        
                         
                     }.offset(y: -50)
                     //session.signup(email: email, password: password)

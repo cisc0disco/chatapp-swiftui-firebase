@@ -29,6 +29,7 @@ struct SignupView: View {
     @State var password: String = ""
     @State var confirmPassword: String = ""
     @State private var showToast = false
+    @State private var signedUp = false
 
     @Binding var showSignup: Bool
     
@@ -57,47 +58,52 @@ struct SignupView: View {
                     .background(.white)
                     .cornerRadius(20)
                     .shadow(radius: 5)
-                /*
+                
                 Button(action: {
-                    if (password == confirmPassword)
-                    {
-                        session.signup(email: email, password: password)
-                        
-                        
-                        if (session.errorType != nil)
-                        {
-                            switch session.errorType
+                    if (password == confirmPassword) {
+                        Task {
+                            errorName = await session.signup(email: email, password: password)
+                            
+                            if (errorName == "ok")
                             {
-                            case .emailAlreadyInUse:
-                                errorName = "Email is already in use"
-                            case .invalidEmail:
-                                errorName = "Email is badly formatted"
-                            case .weakPassword:
-                                errorName = "Password is too weak"
-                            default:
-                                print("Error!!!")
+                                signedUp = true
+                            } else
+                            {
+                                signedUp = false
                             }
-                            session.errorType = nil
                             
                             showToast.toggle()
                         }
                     } else
                     {
-                        errorName = "Passwords do not match"
+                        errorName = """
+                        Passwords not
+                        match
+                        """
+                        
                         showToast.toggle()
                     }
                 }) {
                     Text("Create account")
                 }.buttonStyle(SignupButton())
-                 */
+                 
                     
                     
             }.padding(.horizontal, 50)
-        }.toast(isPresenting: $showToast){
-            
-            AlertToast(type: .error(.red), title: errorName)
-
-        }
+        }.toast(isPresenting: $showToast, duration: 1, tapToDismiss: false, alert: {
+            if (signedUp)
+            {
+                return AlertToast(type: .complete(.green), title: "Signed up")
+            } else
+            {
+                return AlertToast(type: .error(.red), title: errorName)
+            }
+        }, completion: {
+            if (signedUp)
+            {
+                showSignup = false
+            }
+        })
     }
 }
 

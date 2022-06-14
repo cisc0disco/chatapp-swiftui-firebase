@@ -19,59 +19,100 @@ class SessionManager: ObservableObject {
     @Published var loggedIn: Bool = false
     @Published var canShowToast: Bool?
     
-    func login(email: String, password: String, completion: @escaping (AuthErrorCode.Code) -> Void)
+    func login(email: String, password: String, completion: @escaping (AuthErrorCode.Code?, Bool?) -> Void)
     {
             Auth.auth().signIn(withEmail: email, password: password) { (authResult, error) in
             
             guard error == nil else {
                 let error = error as? NSError
                 
-                completion(AuthErrorCode(_nsError: error!).code)
+                completion(AuthErrorCode(_nsError: error!).code, false)
                 return
             }
                 
             self.loggedUser = Auth.auth().currentUser
-            self.loggedIn = true
+                
+            completion(nil, true)
         }
     }
     
     func login(email: String, password: String) async -> String
     {
         await withCheckedContinuation { continuation in
-            login(email: email, password: password) { errorType in
-                var errorString: String = ""
-                
-                switch errorType
+            login(email: email, password: password) { errorType, success in
+                if (!success!)
                 {
-                case .wrongPassword:
-                    errorString = "Wrong password"
-                case .userNotFound:
-                    errorString = "User not found"
-                case .invalidEmail:
-                    errorString = "Invalid email"
-                default:
-                    errorString = ""
+                    var errorString: String = ""
+                                    
+                    switch errorType
+                    {
+                    case .wrongPassword:
+                        errorString = "Wrong password"
+                    case .userNotFound:
+                        errorString = "User not found"
+                    case .invalidEmail:
+                        errorString = "Invalid email"
+                    default:
+                        errorString = ""
+                    }
+                                    
+                    continuation.resume(returning: errorString)
+                } else if (success!)
+                {
+                    continuation.resume(returning: "ok")
                 }
-                
-                continuation.resume(returning: errorString)
             }
         }
     }
     
-    func signup(email: String, password: String)
+    func signup(email: String, password: String, completion: @escaping (AuthErrorCode.Code?, Bool?) -> Void)
     {
-        Auth.auth().createUser(withEmail: email, password: password) {authResult, error in
-            if let error = error as? NSError
-            {
-                //self.errorType = AuthErrorCode.Code(rawValue: error.code)
+        Auth.auth().createUser(withEmail: email, password: password) {(authResult, error) in
+            
+            guard error == nil else {
+                let error = error as? NSError
+                completion(AuthErrorCode(_nsError: error!).code, false)
+                return
             }
-            else {
 
-                self.db.addData(uid: authResult!.user.uid)
-                print(authResult!)
+            self.db.addData(uid: authResult!.user.uid)
+            print(authResult!)
+            completion(nil, true)
+        }
+    }
+    
+    func signup(email: String, password: String) async -> String
+    {
+        await withCheckedContinuation { continuation in
+            signup(email: email, password: password) { errorType, success in
+                if (!success!)
+                {
+                    var errorString: String = ""
+                                    
+                    switch errorType
+                    {
+                    case .weakPassword:
+                        errorString = "Wrong password"
+                    case .emailAlreadyInUse:
+                        errorString = """
+                        Email aready
+                        in use
+                        """
+                    case .invalidEmail:
+                        errorString = "Invalid email"
+                    case .missingEmail:
+                        errorString = "Missing email"
+                    default:
+                        errorString = ""
+                    }
+                    
+                    continuation.resume(returning: errorString)
+                } else if (success!)
+                {
+                    continuation.resume(returning: "ok")
+                }
             }
         }
-
     }
     
     func logout() {
