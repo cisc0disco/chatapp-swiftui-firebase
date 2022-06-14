@@ -1,6 +1,6 @@
 # Chat app built with Swift and Firebase
 
-Current thing which i got to work is login and signup, as for today 14. 6. 2022 i have been learning swift for only 2 days
+Current thing which i got to work is login and signup
 
 | Login page    | Signup page   |
 | ------------- | ------------- |
