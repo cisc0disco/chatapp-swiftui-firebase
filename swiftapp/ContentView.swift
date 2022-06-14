@@ -9,24 +9,24 @@ import SwiftUI
 import Firebase
 
 struct ContentView: View {
-    
-    @EnvironmentObject var session: SessionManager
 
-    var body: some View {
-        if (session.loggedIn == false) {
-            LoginView().environmentObject(session).preferredColorScheme(.light)
-        } else {
-            HomepageView().environmentObject(session)
-        }
-        
-    }
+	@EnvironmentObject var session: SessionManager
+
+	var body: some View {
+		if (session.loggedIn == false) {
+			LoginView().environmentObject(session).preferredColorScheme(.light)
+		} else {
+			HomepageView().environmentObject(session)
+		}
+
+	}
 }
 
 struct ContentView_Previews: PreviewProvider {
-    static let sessionObj = SessionManager()
-    static var previews: some View {
-        Group {
-            ContentView().environmentObject(sessionObj)
-        }
-    }
+	static let sessionObj = SessionManager()
+	static var previews: some View {
+		Group {
+			ContentView().environmentObject(sessionObj)
+		}
+	}
 }
