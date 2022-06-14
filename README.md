@@ -1,1 +1,1 @@
-# Chat app using SwiftUI for frontend and Firebase for backend
+# Chat app built with Swift and Firebase
