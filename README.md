@@ -1,5 +1,5 @@
 # Chat app built with Swift and Firebase
-[![build](https://github.com/cisc0disco/chatapp-swiftui-firebase/actions/workflows/ios.yml/badge.svg?branch=main)](https://github.com/cisc0disco/chatapp-swiftui-firebase/actions/workflows/ios.yml)
+[![build](https://github.com/cisc0disco/chatapp-swiftui-firebase/actions/workflows/ios.yml/badge.svg)](https://github.com/cisc0disco/chatapp-swiftui-firebase/actions/workflows/ios.yml)
 
 | Login page    | Signup page   |
 | ------------- | ------------- |
